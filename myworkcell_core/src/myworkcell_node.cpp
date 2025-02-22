@@ -7,9 +7,10 @@ public:
   ScanNPlan() : Node("scan_n_plan")
   {
     vision_client_ = this->create_client<myworkcell_core::srv::LocalizePart>("localize_part");
+    this->declare_parameter("base_frame", "world");
   }
 
-  void start()
+  void start(const std::string& base_frame)
   {
     RCLCPP_INFO(get_logger(), "Attempting to localize part");
 
@@ -22,8 +23,11 @@ public:
 
     // Create a request for the LocalizePart service call
     auto request = std::make_shared<myworkcell_core::srv::LocalizePart::Request>();
+    request->base_frame = base_frame;
+    RCLCPP_INFO_STREAM(get_logger(), "Requesting pose in base frame: " << base_frame);
     // send the request to the service
     auto future = vision_client_->async_send_request(request);
+
     // wait for the response
     if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) != rclcpp::FutureReturnCode::SUCCESS)
     {
@@ -32,6 +36,7 @@ public:
     }
     // get the response
     auto response = future.get();
+
     // check if the service call was successful
     if (! response->success)
     {
@@ -54,9 +59,13 @@ int main(int argc, char **argv)
 {
   // This must be called before anything else ROS-related
   rclcpp::init(argc, argv);
-
+  
   auto app = std::make_shared<ScanNPlan>();
-  app->start();
+  
+  std::string base_frame = app->get_parameter("base_frame").as_string();
+  //Wait for the vision node to receive data
+  rclcpp::sleep_for(std::chrono::seconds(2));
+  app->start(base_frame);
 
   rclcpp::shutdown();
   return 0;

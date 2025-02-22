@@ -15,4 +15,11 @@ def generate_launch_description():
             executable='vision_node',
             output='screen',
         ),
+        launch_ros.actions.Node(
+            name='myworkcell_node',
+            package='myworkcell_core',
+            executable='myworkcell_node',
+            output='screen',
+            parameters=[{'base_frame': 'world'}],
+        ),
     ])
