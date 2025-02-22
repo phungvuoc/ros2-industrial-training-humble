@@ -9,14 +9,31 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(fake_ar_publisher REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/LocalizePart.srv"
+  DEPENDENCIES geometry_msgs
+)
+
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}    
+  "rosidl_typesupport_cpp"
+)
 
 # add executables
 add_executable(vision_node src/vision_node.cpp)
 ament_target_dependencies(vision_node rclcpp fake_ar_publisher)
+target_link_libraries(vision_node "${cpp_typesupport_target}")
+
+add_executable(myworkcell_node src/myworkcell_node.cpp)
+ament_target_dependencies(myworkcell_node rclcpp)
+target_link_libraries(myworkcell_node "${cpp_typesupport_target}")
 
 # Mark executables for installation
-install(TARGETS vision_node
-    DESTINATION lib/${PROJECT_NAME})
+install(TARGETS vision_node myworkcell_node
+    DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
