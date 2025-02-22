@@ -31,7 +31,7 @@ public:
   }
 
   // service callback
-  void localizePart(myworkcell_core::srv::LocalizePart::Request::SharedPtr req,
+  void localizePart(myworkcell_core::srv::LocalizePart::Request::SharedPtr /*req*/,
                     myworkcell_core::srv::LocalizePart::Response::SharedPtr res)
   {
     // Read last message
