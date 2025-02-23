@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/duco/ros2_ws/install/myworkcell_core/include/**",
+        "/home/duco/ros2_ws/install/fake_ar_publisher/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/duco/ros2_ws/src/ros2-industrial-training-humble/myworkcell_core/include/**",
+        "/home/duco/ros2_ws/src/ros2-industrial-training-humble/myworkcell_support/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
