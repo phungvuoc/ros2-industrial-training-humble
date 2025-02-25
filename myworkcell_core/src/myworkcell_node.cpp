@@ -24,7 +24,7 @@ public:
     // Create a request for the LocalizePart service call
     auto request = std::make_shared<myworkcell_core::srv::LocalizePart::Request>();
     request->base_frame = base_frame;
-    RCLCPP_INFO_STREAM(get_logger(), "Requesting pose in base frame: " << base_frame);
+    RCLCPP_WARN_STREAM(get_logger(), "Requesting pose in base frame: " << base_frame);
     // send the request to the service
     auto future = vision_client_->async_send_request(request);
 
@@ -44,7 +44,7 @@ public:
       return;
     }
     // print the localized part
-    RCLCPP_INFO(this->get_logger(), "Part Localized: x: %f, y: %f, z: %f",
+    RCLCPP_WARN(this->get_logger(), "Part Localized: x: %f, y: %f, z: %f",
       response->pose.position.x,
       response->pose.position.y,
       response->pose.position.z);

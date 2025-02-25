@@ -11,6 +11,8 @@ find_package(rclcpp REQUIRED)
 find_package(fake_ar_publisher REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/LocalizePart.srv"
@@ -23,7 +25,7 @@ rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}
 
 # add executables
 add_executable(vision_node src/vision_node.cpp)
-ament_target_dependencies(vision_node rclcpp fake_ar_publisher)
+ament_target_dependencies(vision_node rclcpp fake_ar_publisher tf2_ros tf2_geometry_msgs)
 target_link_libraries(vision_node "${cpp_typesupport_target}")
 
 add_executable(myworkcell_node src/myworkcell_node.cpp)
