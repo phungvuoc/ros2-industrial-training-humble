@@ -5,9 +5,9 @@ moveit_setup_assistant_config:
   srdf:
     relative_path: config/myworkcell.srdf
   package_settings:
-    author_name: sdfsf
-    author_email: dsaf@dfg.drgf
-    generated_timestamp: 1688072822
+    author_name: duco
+    author_email: duco@mail.com
+    generated_timestamp: 1741866189
   control_xacro:
     command:
       - position
