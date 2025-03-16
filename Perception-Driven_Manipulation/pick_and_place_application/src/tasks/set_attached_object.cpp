@@ -1,4 +1,4 @@
-#include <tf2_eigen/tf2_eigen.h>
+#include <tf2_eigen/tf2_eigen.hpp>
 #include <pick_and_place_application/pick_and_place.h>
 
 /*    SET ATTACHED OBJECT
@@ -13,7 +13,7 @@
 namespace pick_and_place_application
 {
 void PickAndPlaceApp::setAttachedObject(bool attach,
-                                        const geometry_msgs::msg::Pose& pose,
+                                        const geometry_msgs::msg::Pose& /* pose */,
                                         moveit_msgs::msg::RobotState& robot_state)
 {
   // get robot state
