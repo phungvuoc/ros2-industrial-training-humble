@@ -41,7 +41,7 @@ public:
         z_filter_min = -2.5;
         z_filter_max = 2.5;
         plane_max_iter = 100;
-        plane_dist_thresh = 0.03;
+        plane_dist_thresh = 0.01;
         cluster_tol = 0.02;
         cluster_min_size = 1;
         cluster_max_size = 10000;
@@ -183,11 +183,77 @@ public:
         /* ========================================
          * Fill Code: STATISTICAL OUTLIER REMOVAL
          * ========================================*/
+    pcl::PointCloud<pcl::PointXYZ>::Ptr statisticalOutlierRemoval(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud)
+    {
+        pcl::PointCloud<pcl::PointXYZ>::Ptr sor_cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+
+        sor.setInputCloud(input_cloud);
+        sor.setMeanK(50);
+        sor.setStddevMulThresh(1.0);
+        sor.filter(*sor_cloud_filtered);
+
+        return sor_cloud_filtered;
+    }
 
 
         /* ========================================
          * Fill Code: POLYGONAL SEGMENTATION
          * ========================================*/
+    pcl::PointCloud<pcl::PointXYZ>::Ptr polygonalSegmentation(const pcl::PointCloud<pcl::PointXYZ>::Ptr &input_cloud)
+    {
+        pcl::PointCloud<pcl::PointXYZ>::Ptr prism_filtered_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::PointCloud<pcl::PointXYZ>::Ptr pick_surface_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::ExtractPolygonalPrismData<pcl::PointXYZ> prism;
+        pcl::ExtractIndices<pcl::PointXYZ> extract_ind;
+
+        prism.setInputCloud(input_cloud);
+        pcl::PointIndices::Ptr pt_inliers(new pcl::PointIndices());
+
+        // create prism surface
+        double box_length = 0.25;
+        double box_width = 0.25;
+        pick_surface_cloud_ptr->width = 5;
+        pick_surface_cloud_ptr->height = 1;
+        pick_surface_cloud_ptr->points.resize(5);
+
+        pick_surface_cloud_ptr->points[0].x = 0.5f*box_length;
+        pick_surface_cloud_ptr->points[0].y = 0.5f*box_width;
+        pick_surface_cloud_ptr->points[0].z = 0;
+
+        pick_surface_cloud_ptr->points[1].x = -0.5f*box_length;
+        pick_surface_cloud_ptr->points[1].y = 0.5f*box_width;
+        pick_surface_cloud_ptr->points[1].z = 0;
+
+        pick_surface_cloud_ptr->points[2].x = -0.5f*box_length;
+        pick_surface_cloud_ptr->points[2].y = -0.5f*box_width;
+        pick_surface_cloud_ptr->points[2].z = 0;
+
+        pick_surface_cloud_ptr->points[3].x = 0.5f*box_length;
+        pick_surface_cloud_ptr->points[3].y = -0.5f*box_width;
+        pick_surface_cloud_ptr->points[3].z = 0;
+
+        pick_surface_cloud_ptr->points[4].x = 0.5f*box_length;
+        pick_surface_cloud_ptr->points[4].y = 0.5f*box_width;
+        pick_surface_cloud_ptr->points[4].z = 0;
+        
+        geometry_msgs::msg::TransformStamped part_transform;
+        Eigen::Affine3d eigen3d = tf2::transformToEigen(part_transform);
+        pcl::transformPointCloud(*pick_surface_cloud_ptr, *pick_surface_cloud_ptr, Eigen::Affine3f(eigen3d));
+
+        prism.setInputPlanarHull(pick_surface_cloud_ptr);
+        prism.setHeightLimits(-10, 10);
+
+        prism.segment(*pt_inliers);
+
+        extract_ind.setInputCloud(input_cloud);
+        extract_ind.setIndices(pt_inliers);
+
+        extract_ind.setNegative(true);
+        extract_ind.filter(*prism_filtered_cloud_ptr);
+
+        return prism_filtered_cloud_ptr;
+    }
 
 
 
@@ -200,7 +266,7 @@ public:
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud (new pcl::PointCloud<pcl::PointXYZ>);
         if (request->pcdfilename.empty())
-        {
+        { // read cloud from request input cloud
             pcl::fromROSMsg(request->input_cloud, *cloud);
             RCLCPP_INFO(this->get_logger(), "cloud size: '%lu'", cloud->size());
             if (cloud->empty())
@@ -211,8 +277,23 @@ public:
             }
         }
         else
-        {
-            pcl::io::loadPCDFile(request->pcdfilename, *cloud);
+        { // read cloud from file
+            // pcl::io::loadPCDFile(request->pcdfilename, *cloud)
+            try
+            {
+                if (pcl::io::loadPCDFile(request->pcdfilename, *cloud) == -1)
+                {
+                    RCLCPP_ERROR(this->get_logger(), "Could not read file %s", request->pcdfilename.c_str());
+                    response->success = false;
+                    return;
+                }
+            }
+            catch(const std::exception& e)
+            {
+                RCLCPP_ERROR(this->get_logger(), "Exception loading PCD file: %s", e.what());
+                response->success = false;
+                return;
+            }
         }
 
         switch (request->operation)
@@ -221,6 +302,24 @@ public:
             case py_perception::srv::FilterCloud::Request::VOXELGRID :
             {
                 filtered_cloud = voxelGrid(cloud, 0.01);
+                break;
+            }
+            
+            case py_perception::srv::FilterCloud::Request::PASSTHROUGH:
+            {   
+                filtered_cloud = passThrough(cloud);
+                break;
+            }
+
+            case py_perception::srv::FilterCloud::Request::PLANESEGMENTATION:
+            {
+                filtered_cloud = planeSegmentation(cloud);
+                break;
+            }
+
+            case py_perception::srv::FilterCloud::Request::CLUSTEREXTRACTION:
+            {
+                filtered_cloud = clusterExtraction(cloud).at(0);
                 break;
             }
 
