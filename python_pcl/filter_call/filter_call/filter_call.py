@@ -86,7 +86,6 @@ class FilterNode(Node):
         self.last_cloud = res_pass
         self.get_logger().info("published: passthrough filter response")
 
-
     def plane_segmentation(self):
         # =======================
         # PLANE SEGMENTATION
