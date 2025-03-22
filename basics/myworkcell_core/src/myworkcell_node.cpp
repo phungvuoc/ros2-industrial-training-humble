@@ -4,12 +4,16 @@
 #include <moveit/moveit_cpp/moveit_cpp.h>
 #include <moveit/moveit_cpp/planning_component.h>
 
+/**
+* @brief The ScanNPlan class is a client of the vision and path plan servers.  The ScanNPLan class takes
+* these services, computes transforms and published commands to the robot.
+*/
 class ScanNPlan : public rclcpp::Node
 {
 public:
   ScanNPlan() : Node("scan_n_plan", rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true))
   {
-    if (! this->has_parameter("base_frame"))
+    if (!this->has_parameter("base_frame"))
     {
       this->declare_parameter("base_frame", "world");
     }
@@ -30,6 +34,17 @@ public:
     plan_parameters_.load(this->shared_from_this());
   }
 
+  /**
+   * @brief start performs the motion planning and execution functions of the ScanNPlan of
+   * the node. The start method makes a service request for a transform that
+   * localizes the part.  The start method moves the "manipulator"
+   * move group to the localization target.  The start method requests
+   * a cartesian path based on the localization target.  The start method
+   * sends the cartesian path to the actionlib client for execution, bypassig
+   * MoveIt!
+   * @param base_frame is a string that specifies the reference frame
+   * coordinate system.
+   */
   void start(const std::string& base_frame)
   {
     RCLCPP_INFO(get_logger(), "Attempting to localize part");
@@ -110,6 +125,13 @@ private:
   rclcpp::Client<myworkcell_core::srv::LocalizePart>::SharedPtr vision_client_;
 };
 
+/**
+ * @brief main is the ros interface for the ScanNPlan Class
+ * @param argc ROS uses this to parse remapping arguments from the command line.
+ * @param argv ROS uses this to parse remapping arguments from the command line.
+ * @return ROS provides typical return codes, 0 or -1, depending on the
+ * execution.
+ */
 int main(int argc, char **argv)
 {
   // This must be called before anything else ROS-related
