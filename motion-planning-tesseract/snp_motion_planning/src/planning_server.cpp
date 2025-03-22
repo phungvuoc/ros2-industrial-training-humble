@@ -11,7 +11,7 @@
 #include <tesseract_rosutils/utils.h>
 #include <tesseract_collision/bullet/convex_hull_utils.h>
 #include <snp_msgs/srv/generate_motion_plan.hpp>
-#include <tf2_eigen/tf2_eigen.h>
+#include <tf2_eigen/tf2_eigen.hpp>
 
 #include <tesseract_time_parameterization/core/instructions_trajectory.h>
 #include <tesseract_motion_planners/core/utils.h>
@@ -136,7 +136,10 @@ public:
     node_->declare_parameter<std::string>("robot_description");
     node_->declare_parameter<std::string>("robot_description_semantic");
     node_->declare_parameter<bool>(VERBOSE_PARAM, false);
-    node_->declare_parameter<std::vector<std::string>>(TOUCH_LINKS_PARAM, {});
+    rcl_interfaces::msg::ParameterDescriptor touch_links_desc;
+    touch_links_desc.name = TOUCH_LINKS_PARAM;
+    touch_links_desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_STRING_ARRAY;
+    node_->declare_parameter<std::vector<std::string>>(TOUCH_LINKS_PARAM, {}, touch_links_desc);
     node_->declare_parameter<double>(MAX_TRANS_VEL_PARAM);
     node_->declare_parameter<double>(MAX_ROT_VEL_PARAM);
     node_->declare_parameter<double>(MAX_TRANS_ACC_PARAM);

@@ -24,6 +24,10 @@ typename tesseract_planning::DescartesDefaultPlanProfile<FloatType>::Ptr createD
   /* =======================
      * Fill Code: DESCARTES
      * =======================*/
+  profile->num_threads = static_cast<int>(std::thread::hardware_concurrency());
+
+  profile->target_pose_sampler =
+      std::bind(tesseract_planning::sampleToolZAxis, std::placeholders::_1, 30.0 * M_PI / 180.0);
 
   return profile;
 }
@@ -35,7 +39,21 @@ tesseract_planning::OMPLDefaultPlanProfile::Ptr createOMPLProfile()
   /* =======================
      * Fill Code: OMPL
      * =======================*/
+  // Give OMPL 15 seconds to plan
+  profile->planning_time = 15.0;
 
+  // Clear existing planners
+  profile->planners.clear();
+
+  // Add an RRTConnect planner with a small step size for small motions
+  auto rrt_connect_small = std::make_shared<tesseract_planning::RRTConnectConfigurator>();
+  rrt_connect_small->range = 0.05;
+  profile->planners.push_back(rrt_connect_small);
+
+  // Add an RRTConnect planner with a large step size for large motions
+  auto rrt_connect_large = std::make_shared<tesseract_planning::RRTConnectConfigurator>();
+  rrt_connect_large->range = 0.25;
+  profile->planners.push_back(rrt_connect_large);
   return profile;
 }
 
@@ -46,6 +64,8 @@ std::shared_ptr<tesseract_planning::TrajOptPlanProfile> createTrajOptToolZFreePl
   /* =======================
      * Fill Code: TRAJOPT PLAN
      * =======================*/
+  profile->cartesian_coeff = Eigen::VectorXd::Constant(6, 1, 5.0);
+  profile->cartesian_coeff(5) = 0.0;
 
   return profile;
 }
@@ -57,7 +77,19 @@ std::shared_ptr<tesseract_planning::TrajOptDefaultCompositeProfile> createTrajOp
   /* =======================
      * Fill Code: TRAJOPT COMPOSITE
      * =======================*/
-
+  profile->smooth_velocities = true;
+  profile->velocity_coeff = Eigen::VectorXd::Constant(6, 1, 10.0);
+  profile->acceleration_coeff = Eigen::VectorXd::Constant(6, 1, 25.0);
+  profile->jerk_coeff = Eigen::VectorXd::Constant(6, 1, 50.0);
+  
+  profile->collision_cost_config.enabled = true;
+  profile->collision_cost_config.type = trajopt::CollisionEvaluatorType::DISCRETE_CONTINUOUS;
+  profile->collision_cost_config.safety_margin = 0.010;
+  profile->collision_cost_config.safety_margin_buffer = 0.010;
+  profile->collision_cost_config.coeff = 10.0;
+  
+  profile->collision_constraint_config.enabled = false;
+  
   return profile;
 }
 
