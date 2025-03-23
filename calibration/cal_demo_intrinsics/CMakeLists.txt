@@ -18,5 +18,7 @@ ament_target_dependencies(camera_info_publisher rclcpp sensor_msgs camera_calibr
 install(TARGETS camera_info_publisher
         DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY config 
+        DESTINATION share/${PROJECT_NAME}/)
 
 ament_package()
