@@ -20,13 +20,15 @@
 <joint name="tool_to_target" type="fixed">
   <parent link="tool0"/>
   <child link="target"/>
-  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <origin xyz="0.052420239017524677 0.11707682304018387 0.20200091530407691" 
+    rpy="-0.27244202447306415 1.5211319643734944 2.0830898675932166"/>
 </joint>
 
 <joint name="base_to_camera" type="fixed">
   <parent link="base_link"/>
   <child link="camera"/>
-  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <origin xyz="-0.019244099609314384 1.2685683299551143 0.28596284162986568" 
+    rpy="-1.185402315864468 0.10661890144606352 3.1282558434663512"/>
 </joint>
 
 </robot>

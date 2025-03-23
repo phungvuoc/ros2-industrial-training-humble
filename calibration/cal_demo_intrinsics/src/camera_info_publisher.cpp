@@ -37,7 +37,7 @@ class CameraInfoPublisher : public rclcpp::Node
       std::string saved_name; // camera name in file - to be loaded
 
       // parse the calibration into a CameraInfo message
-      if (!false /* CODE HERE! */)
+      if (!camera_calibration_parsers::readCalibration(file_path, saved_name, info) /* CODE HERE! */)
       {
         RCLCPP_INFO(this->get_logger(), "Error parsing calibration");
         return;
@@ -46,6 +46,7 @@ class CameraInfoPublisher : public rclcpp::Node
       // need to fill in timestamp and frame info
       // CODE HERE!
       // update the CameraInfo header to match the image header
+      info.header = img_msg->header;
 
       RCLCPP_INFO(this->get_logger(), "Publishing camera info");
 
