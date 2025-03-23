@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot name="demo_workcell" xmlns:xacro="http://ros.org/wiki/xacro">
+
+<link name="world"/>
+
+<xacro:include filename="$(find abb_irb2400_support)/urdf/irb2400_macro.xacro"/>
+
+<xacro:abb_irb2400 prefix=""/>
+
+<joint name="world_to_base_link" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+</joint>
+
+<link name="camera"/>
+<link name="target"/>
+
+<joint name="tool_to_target" type="fixed">
+  <parent link="tool0"/>
+  <child link="target"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+</joint>
+
+<joint name="base_to_camera" type="fixed">
+  <parent link="base_link"/>
+  <child link="camera"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+</joint>
+
+</robot>

@@ -1,0 +1,9 @@
+repositories:
+  abb:
+    type: git
+    url: https://github.com/reidchristopher/abb.git
+    version: 0a37d19df3b0cef9780628edc3ed96c57f45364c
+  robot_cal_tools:
+    type: git
+    url: https://github.com/reidchristopher/robot_cal_tools.git
+    version: 888ade23e0f4ee00c48c0e73c525cba6e2f51eff
